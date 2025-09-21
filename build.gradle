@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.ecodoobiz'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+description = 'UDI for HLB'
 
 java {
 	toolchain {
@@ -31,5 +31,7 @@ tasks.named('test') {
 }
 
 processResources {
-    expand(project.properties)
+    filesMatching('**/application.yml') {
+        expand(project.properties)
+    }
 }
