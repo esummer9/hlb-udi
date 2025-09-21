@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: hlb-udi
+
+application:
+  title: '@project.description@'
+  version: '@project.version@'
