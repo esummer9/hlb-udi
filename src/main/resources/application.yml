@@ -1,6 +1,8 @@
 spring:
   application:
     name: hlb-udi
+  config:
+    import: "optional:classpath:admin.yml"
 
 application:
   title: '@project.description@'

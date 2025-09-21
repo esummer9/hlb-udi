@@ -1,0 +1,4 @@
+admin:
+  username: admin-from-file
+  password: password-from-file
+  roles: ADMIN,USER
