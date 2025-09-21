@@ -19,12 +19,14 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/login").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/manager/**").hasRole("MANAGER")
                                 .requestMatchers("/").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
+                        .loginPage("/login.html")
                         .successHandler(authenticationSuccessHandler())
                 );
         return http.build();
