@@ -3,6 +3,14 @@ spring:
     name: hlb-udi
   config:
     import: "optional:classpath:admin.yml"
+  datasource:
+    url: jdbc:sqlite:hlbudi.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
 application:
   title: '@project.description@'

@@ -7,12 +7,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 public class SecurityConfig {
+
+    private final ManagerRepository managerRepository;
+
+    public SecurityConfig(ManagerRepository managerRepository) {
+        this.managerRepository = managerRepository;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,28 +53,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(
-            @Value("${admin.username}") String adminUsername,
-            @Value("${admin.password}") String adminPassword,
-            @Value("${admin.roles}") String[] adminRoles
-    ) {
-        // Warning: withDefaultPasswordEncoder() is not intended for production use.
-        // It is intended for development and sample applications.
-        UserDetails admin = User.withDefaultPasswordEncoder()
-                .username(adminUsername)
-                .password(adminPassword)
-                .roles(adminRoles)
-                .build();
-        UserDetails manager = User.withDefaultPasswordEncoder()
-                .username("manager")
-                .password("password")
-                .roles("MANAGER", "USER")
-                .build();
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(admin, manager, user);
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        return username -> {
+            // First, try to load from ManagerRepository
+            return managerRepository.findByUsername(username)
+                    .map(manager -> User.builder()
+                            .username(manager.getUsername())
+                            .password(manager.getPassword())
+                            .roles("MANAGER") // Assuming all users from Manager table are MANAGERs
+                            .build())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        };
     }
 }
