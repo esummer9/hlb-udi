@@ -1,6 +1,5 @@
-package com.ecodoobiz.hlbudi;
+package com.ecodoobiz.hlbudi.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,13 +11,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import com.ecodoobiz.hlbudi.repository.ManagerRepository;
 
 @Configuration
 public class SecurityConfig {
 
+    private final AdminProperties adminProperties;
     private final ManagerRepository managerRepository;
 
-    public SecurityConfig(ManagerRepository managerRepository) {
+    public SecurityConfig(AdminProperties adminProperties, ManagerRepository managerRepository) {
+        this.adminProperties = adminProperties;
         this.managerRepository = managerRepository;
     }
 
@@ -60,7 +62,16 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         return username -> {
-            // First, try to load from ManagerRepository
+            // 1. Check for admin user from admin.yml
+            if (adminProperties.getUsername().equals(username)) {
+                return User.builder()
+                        .username(adminProperties.getUsername())
+                        .password(passwordEncoder.encode(adminProperties.getPassword()))
+                        .roles(adminProperties.getRoles())
+                        .build();
+            }
+
+            // 2. Fall back to database for other users
             return managerRepository.findByUsername(username)
                     .map(manager -> User.builder()
                             .username(manager.getUsername())

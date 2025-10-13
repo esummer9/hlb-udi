@@ -4,13 +4,26 @@ spring:
   config:
     import: "optional:classpath:admin.yml"
   datasource:
-    url: jdbc:sqlite:hlbudi.db
-    driver-class-name: org.sqlite.JDBC
+    url: jdbc:postgresql://localhost:5432/odoo
+    username:
+    password: postgresqlpw
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          lotte:
+            client-id: YOUR_LOTTE_CLIENT_ID
+            client-secret: YOUR_LOTTE_CLIENT_SECRET
+            authorization-grant-type: client_credentials
+            scope: read,write
+        provider:
+          lotte:
+            token-uri: https://logis.lotte.net/oauth/token # 실제 롯데택배 토큰 URL로 변경해야 합니다.
 
 application:
   title: '@project.description@'

@@ -1,4 +1,4 @@
-package com.ecodoobiz.hlbudi;
+package com.ecodoobiz.hlbudi.controller;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
